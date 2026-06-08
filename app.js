@@ -409,6 +409,7 @@ function renderLobbies() {
     button.innerHTML = `
       <span class="eyebrow">${size}-player lobby</span>
       <strong>${money(buyIn)}</strong>
+      <span class="first-payout">1st place ${money(payoutTable(buyIn, size)[0])}</span>
       ${seatedMeta}
     `;
     button.addEventListener("click", () => joinLobby(buyIn, size));

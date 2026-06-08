@@ -424,6 +424,12 @@ h3 {
   font-size: 1.9rem;
 }
 
+.first-payout {
+  color: var(--gold);
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
 .lobby-meta {
   display: flex;
   justify-content: space-between;
