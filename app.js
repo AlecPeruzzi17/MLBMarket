@@ -145,7 +145,6 @@ const els = {
   slotList: document.querySelector("#slotList"),
   lineupList: document.querySelector("#lineupList"),
   payoutList: document.querySelector("#payoutList"),
-  rakeBadge: document.querySelector("#rakeBadge"),
   draftStatus: document.querySelector("#draftStatus"),
   roundTitle: document.querySelector("#roundTitle"),
   activeBuyIn: document.querySelector("#activeBuyIn"),
@@ -247,7 +246,6 @@ function renderLobbies() {
     button.innerHTML = `
       <span class="eyebrow">10-player lobby</span>
       <strong>${money(buyIn)}</strong>
-      <span class="lobby-meta"><span>Prize ${money(buyIn * 8.7)}</span><span>Rake ${money(buyIn * 0.3)}</span></span>
     `;
     button.addEventListener("click", () => joinLobby(buyIn));
     els.lobbyGrid.appendChild(button);
@@ -256,8 +254,7 @@ function renderLobbies() {
 
 function joinLobby(buyIn) {
   if (startingPitchers.length < choicesPerRound) {
-    els.cashierMessage.textContent = "Enter at least 4 starting pitchers in Admin before joining a lobby.";
-    switchTab("admin");
+    els.cashierMessage.textContent = "At least 4 starting pitchers need to be loaded before joining a lobby.";
     return;
   }
 
@@ -403,7 +400,6 @@ function renderPayouts() {
     ["3rd", buyIn * 1.2],
     ["4th", buyIn]
   ];
-  els.rakeBadge.textContent = `Rake ${money(buyIn * 0.3)}`;
   els.payoutList.innerHTML = "";
   payouts.forEach(([place, amount]) => {
     const row = document.createElement("div");
