@@ -2,8 +2,33 @@ const lobbyBuyIns = [0.5, 1, 5, 10, 20, 50, 100, 500];
 const rosterSlots = ["C", "1B", "2B", "3B", "SS", "OF", "OF", "OF", "UTIL", "SP", "SP"];
 const choicesPerRound = 4;
 const storageKeys = {
-  starters: "yourLineup.todayStarters"
+  starters: "yourLineup.todayStarters",
+  users: "yourLineup.users",
+  session: "yourLineup.sessionEmail"
 };
+const lobbySeats = 10;
+const housePlayers = [
+  "Maya Chen",
+  "Jordan Blake",
+  "Sam Rivera",
+  "Tessa Morgan",
+  "Miles Carter",
+  "Riley Brooks",
+  "Nico Walsh",
+  "Avery Stone",
+  "Devin Ortiz",
+  "Cameron Lee",
+  "Quinn Foster",
+  "Parker James"
+];
+const defaultStartingPitchers = [
+  { name: "Tarik Skubal", team: "DET", positions: ["SP"], avg: "2.39 ERA", power: "Ace", trend: "Probable" },
+  { name: "Zack Wheeler", team: "PHI", positions: ["SP"], avg: "2.57 ERA", power: "Ks", trend: "Probable" },
+  { name: "Paul Skenes", team: "PIT", positions: ["SP"], avg: "1.96 ERA", power: "Power", trend: "Probable" },
+  { name: "Logan Webb", team: "SF", positions: ["SP"], avg: "3.47 ERA", power: "Volume", trend: "Probable" },
+  { name: "Corbin Burnes", team: "ARI", positions: ["SP"], avg: "3.19 ERA", power: "Whiffs", trend: "Probable" },
+  { name: "Framber Valdez", team: "HOU", positions: ["SP"], avg: "2.91 ERA", power: "Grounders", trend: "Probable" }
+];
 
 const qualifiedHitterRows = `
 Adley Rutschman|BAL|C|.276|22 HR|3.1 PA/G
@@ -126,18 +151,29 @@ const qualifiedHitters = qualifiedHitterRows.split("\n").map((row) => {
   return { name, team, positions: positions.split(","), avg, power, trend };
 });
 
+let users = loadUsers();
+let currentUser = loadCurrentUser();
 let startingPitchers = loadStoredStarters();
 let players = [...qualifiedHitters, ...startingPitchers];
 
 const state = {
-  balance: 42.5,
+  balance: currentUser?.balance ?? 42.5,
   activeBuyIn: 0,
+  lobby: null,
+  results: [],
+  resultsSettled: false,
   roster: [],
   currentSlot: null,
   choices: []
 };
 
 const els = {
+  appShell: document.querySelector("#appShell"),
+  accountName: document.querySelector("#accountName"),
+  signOutButton: document.querySelector("#signOutButton"),
+  loginForm: document.querySelector("#loginForm"),
+  signupForm: document.querySelector("#signupForm"),
+  authMessage: document.querySelector("#authMessage"),
   balance: document.querySelector("#balance"),
   lobbyGrid: document.querySelector("#lobbyGrid"),
   cashierMessage: document.querySelector("#cashierMessage"),
@@ -150,6 +186,11 @@ const els = {
   activeBuyIn: document.querySelector("#activeBuyIn"),
   pickCounter: document.querySelector("#pickCounter"),
   playerPoolStatus: document.querySelector("#playerPoolStatus"),
+  resultsStatus: document.querySelector("#resultsStatus"),
+  resultsList: document.querySelector("#resultsList"),
+  settleResults: document.querySelector("#settleResults"),
+  lobbySeatCount: document.querySelector("#lobbySeatCount"),
+  lobbyPlayers: document.querySelector("#lobbyPlayers"),
   starterTextarea: document.querySelector("#starterTextarea"),
   saveStarters: document.querySelector("#saveStarters"),
   starterList: document.querySelector("#starterList"),
@@ -162,6 +203,18 @@ const els = {
 
 function money(value) {
   return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => (
+    {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char]
+  ));
 }
 
 function readStorage(key) {
@@ -180,13 +233,48 @@ function writeStorage(key, value) {
   }
 }
 
-function loadStoredStarters() {
-  const stored = readStorage(storageKeys.starters);
+function removeStorage(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Storage is optional in this static prototype.
+  }
+}
+
+function loadUsers() {
+  const stored = readStorage(storageKeys.users);
   if (!stored) return [];
   try {
     return JSON.parse(stored);
   } catch {
     return [];
+  }
+}
+
+function saveUsers() {
+  writeStorage(storageKeys.users, JSON.stringify(users));
+}
+
+function loadCurrentUser() {
+  const email = readStorage(storageKeys.session);
+  if (!email) return null;
+  return loadUsers().find((user) => user.email === email) || null;
+}
+
+function saveCurrentUser() {
+  if (!currentUser) return;
+  users = users.map((user) => (user.email === currentUser.email ? currentUser : user));
+  saveUsers();
+}
+
+function loadStoredStarters() {
+  const stored = readStorage(storageKeys.starters);
+  if (!stored) return defaultStartingPitchers;
+  try {
+    const parsed = JSON.parse(stored);
+    return parsed.length ? parsed : defaultStartingPitchers;
+  } catch {
+    return defaultStartingPitchers;
   }
 }
 
@@ -215,8 +303,8 @@ function parseStarters(text) {
 
 function setPlayerPoolStatus() {
   const starterText = startingPitchers.length
-    ? `${startingPitchers.length} admin SPs loaded`
-    : "Admin SPs needed";
+    ? `${startingPitchers.length} projected SPs loaded`
+    : "SP pool pending";
   els.playerPoolStatus.textContent = `${qualifiedHitters.length} qualified hitters / ${starterText}`;
 }
 
@@ -225,7 +313,26 @@ function refreshPlayers() {
   setPlayerPoolStatus();
 }
 
+function syncUserBalance() {
+  if (!currentUser) return;
+  currentUser.balance = state.balance;
+  saveCurrentUser();
+}
+
+function showAuth(message = "") {
+  document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
+  document.querySelectorAll(".view").forEach((view) => {
+    view.classList.toggle("active", view.id === "auth");
+  });
+  els.authMessage.textContent = message;
+}
+
 function switchTab(tabName) {
+  if (!currentUser && tabName !== "auth") {
+    showAuth("Log in or create an account before entering a lobby.");
+    return;
+  }
+
   document.querySelectorAll(".tab").forEach((tab) => {
     tab.classList.toggle("active", tab.dataset.tab === tabName);
   });
@@ -238,21 +345,69 @@ function updateBalance() {
   els.balance.textContent = money(state.balance);
 }
 
+function renderAccount() {
+  if (!currentUser) {
+    els.accountName.textContent = "Signed out";
+    els.signOutButton.hidden = true;
+    els.balance.textContent = money(0);
+    showAuth();
+    return;
+  }
+
+  els.accountName.textContent = currentUser.name;
+  els.signOutButton.hidden = false;
+}
+
 function renderLobbies() {
   els.lobbyGrid.innerHTML = "";
   lobbyBuyIns.forEach((buyIn) => {
     const button = document.createElement("button");
     button.className = "lobby-card";
+    const filledSeats = state.lobby?.buyIn === buyIn ? state.lobby.entries.length : Math.min(lobbySeats - 1, 4 + Math.floor(buyIn) % 5);
     button.innerHTML = `
       <span class="eyebrow">10-player lobby</span>
       <strong>${money(buyIn)}</strong>
+      <span class="lobby-meta"><span>${filledSeats} / ${lobbySeats} seated</span><span>Top 4 paid</span></span>
     `;
     button.addEventListener("click", () => joinLobby(buyIn));
     els.lobbyGrid.appendChild(button);
   });
 }
 
+function buildLobby(buyIn) {
+  const opponents = housePlayers
+    .filter((name) => name !== currentUser.name)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, lobbySeats - 1)
+    .map((name, index) => ({
+      id: `house-${index}`,
+      name,
+      score: 0,
+      payout: 0,
+      isCurrentUser: false
+    }));
+
+  return {
+    buyIn,
+    entries: [
+      {
+        id: currentUser.email,
+        name: currentUser.name,
+        score: 0,
+        payout: 0,
+        isCurrentUser: true
+      },
+      ...opponents
+    ]
+  };
+}
+
 function joinLobby(buyIn) {
+  if (!currentUser) {
+    showAuth("Log in or create an account before joining a lobby.");
+    return;
+  }
+
   if (startingPitchers.length < choicesPerRound) {
     els.cashierMessage.textContent = "At least 4 starting pitchers need to be loaded before joining a lobby.";
     return;
@@ -265,9 +420,13 @@ function joinLobby(buyIn) {
 
   state.balance -= buyIn;
   state.activeBuyIn = buyIn;
+  state.lobby = buildLobby(buyIn);
+  state.results = [];
+  state.resultsSettled = false;
   state.roster = [];
   els.cashierMessage.textContent = `${money(buyIn)} lobby joined. Your seat is locked.`;
   updateBalance();
+  syncUserBalance();
   nextRound();
   renderAll();
   switchTab("draft");
@@ -312,10 +471,16 @@ function choosePlayer(playerName) {
 
   state.roster.push({ slot: state.currentSlot, player });
   nextRound();
+
+  if (state.roster.length === rosterSlots.length) {
+    state.resultsSettled = false;
+    state.results = [];
+  }
+
   renderAll();
 
   if (state.roster.length === rosterSlots.length) {
-    switchTab("lineup");
+    switchTab("results");
   }
 }
 
@@ -335,7 +500,7 @@ function renderDraft() {
     els.draftStatus.textContent = "Lineup submitted";
     els.roundTitle.textContent = "Waiting on the MLB slate";
     els.choiceGrid.className = "choice-grid empty-state";
-    els.choiceGrid.innerHTML = "<p>Your entry is in the pool. Leaderboard scoring begins when real-life stats are posted.</p>";
+    els.choiceGrid.innerHTML = "<p>Your entry is in the pool. Results will settle after the MLB slate finishes.</p>";
     return;
   }
 
@@ -409,6 +574,94 @@ function renderPayouts() {
   });
 }
 
+function payoutForRank(rank, buyIn) {
+  const payouts = [buyIn * 5, buyIn * 2.5, buyIn * 1.2, buyIn];
+  return payouts[rank - 1] || 0;
+}
+
+function settleResults() {
+  if (!state.lobby || state.roster.length !== rosterSlots.length || state.resultsSettled) return;
+
+  state.results = state.lobby.entries
+    .map((entry) => ({
+      ...entry,
+      score: entry.isCurrentUser
+        ? Math.round((68 + Math.random() * 34 + state.roster.length * 1.6) * 10) / 10
+        : Math.round((62 + Math.random() * 48) * 10) / 10
+    }))
+    .sort((a, b) => b.score - a.score)
+    .map((entry, index) => ({
+      ...entry,
+      rank: index + 1,
+      payout: payoutForRank(index + 1, state.activeBuyIn)
+    }));
+
+  const userResult = state.results.find((entry) => entry.isCurrentUser);
+  if (userResult?.payout) {
+    state.balance += userResult.payout;
+    syncUserBalance();
+  }
+
+  state.resultsSettled = true;
+  renderAll();
+}
+
+function renderLobbyPlayers() {
+  const entries = state.lobby?.entries || [];
+  els.lobbySeatCount.textContent = `${entries.length} / ${lobbySeats}`;
+
+  if (!entries.length) {
+    els.lobbyPlayers.className = "lineup-list empty-state";
+    els.lobbyPlayers.innerHTML = "<p>No lobby selected yet.</p>";
+    return;
+  }
+
+  els.lobbyPlayers.className = "lineup-list";
+  els.lobbyPlayers.innerHTML = "";
+  entries.forEach((entry, index) => {
+    const row = document.createElement("div");
+    row.className = `lineup-row ${entry.isCurrentUser ? "you" : ""}`;
+    row.innerHTML = `<span>Seat ${index + 1}</span><strong>${escapeHtml(entry.name)}</strong><span>${entry.isCurrentUser ? "You" : "Ready"}</span>`;
+    els.lobbyPlayers.appendChild(row);
+  });
+}
+
+function renderResults() {
+  renderLobbyPlayers();
+  els.settleResults.disabled = !state.lobby || state.roster.length !== rosterSlots.length || state.resultsSettled;
+
+  if (!state.lobby) {
+    els.resultsStatus.textContent = "Waiting for entry";
+    els.resultsList.className = "lineup-list empty-state";
+    els.resultsList.innerHTML = "<p>Join a lobby and submit a lineup to wait for results.</p>";
+    return;
+  }
+
+  if (state.roster.length !== rosterSlots.length) {
+    els.resultsStatus.textContent = "Draft in progress";
+    els.resultsList.className = "lineup-list empty-state";
+    els.resultsList.innerHTML = "<p>Your lobby is seated. Finish drafting your lineup before results can settle.</p>";
+    return;
+  }
+
+  if (!state.resultsSettled) {
+    els.resultsStatus.textContent = "Waiting for results";
+    els.resultsList.className = "lineup-list empty-state";
+    els.resultsList.innerHTML = "<p>Your lineup is submitted. Final standings will appear after the slate is scored.</p>";
+    return;
+  }
+
+  els.resultsStatus.textContent = "Payouts settled";
+  els.resultsList.className = "lineup-list";
+  els.resultsList.innerHTML = "";
+  state.results.forEach((entry) => {
+    const row = document.createElement("div");
+    row.className = `lineup-row ${entry.isCurrentUser ? "you" : ""}`;
+    row.innerHTML = `<span>#${entry.rank}</span><strong>${escapeHtml(entry.name)}</strong><span>${entry.score} pts / ${entry.payout ? money(entry.payout) : "$0.00"}</span>`;
+    els.resultsList.appendChild(row);
+  });
+}
+
 function renderAdminStarters() {
   els.starterTextarea.value = startingPitchers.map((player) => `${player.name}, ${player.team}`).join("\n");
   els.starterCount.textContent = `${startingPitchers.length} SP`;
@@ -449,13 +702,82 @@ function scorePitcher(formData) {
   );
 }
 
+function authenticate(email, password) {
+  return users.find((user) => user.email === email.toLowerCase() && user.password === password) || null;
+}
+
+function startSession(user) {
+  currentUser = user;
+  state.balance = currentUser.balance;
+  writeStorage(storageKeys.session, currentUser.email);
+  els.loginForm.reset();
+  els.signupForm.reset();
+  els.authMessage.textContent = "";
+  renderAll();
+  switchTab("lobbies");
+}
+
+function handleLogin(event) {
+  event.preventDefault();
+  const formData = new FormData(els.loginForm);
+  const user = authenticate(String(formData.get("email")), String(formData.get("password")));
+
+  if (!user) {
+    els.authMessage.textContent = "No account matched those credentials.";
+    return;
+  }
+
+  startSession(user);
+}
+
+function handleSignup(event) {
+  event.preventDefault();
+  const formData = new FormData(els.signupForm);
+  const name = String(formData.get("name")).trim();
+  const email = String(formData.get("email")).trim().toLowerCase();
+  const password = String(formData.get("password"));
+
+  if (users.some((user) => user.email === email)) {
+    els.authMessage.textContent = "That email already has an account. Log in instead.";
+    return;
+  }
+
+  const user = {
+    name,
+    email,
+    password,
+    balance: 42.5
+  };
+
+  users.push(user);
+  saveUsers();
+  startSession(user);
+}
+
+function signOut() {
+  currentUser = null;
+  state.balance = 0;
+  state.activeBuyIn = 0;
+  state.lobby = null;
+  state.results = [];
+  state.resultsSettled = false;
+  state.roster = [];
+  state.currentSlot = null;
+  state.choices = [];
+  removeStorage(storageKeys.session);
+  renderAll();
+}
+
 function renderAll() {
+  renderAccount();
   refreshPlayers();
   updateBalance();
+  renderLobbies();
   renderDraft();
   renderSlots();
   renderLineup();
   renderPayouts();
+  renderResults();
   renderAdminStarters();
 }
 
@@ -465,12 +787,23 @@ document.querySelectorAll(".tab").forEach((tab) => {
 
 document.querySelectorAll("[data-deposit]").forEach((button) => {
   button.addEventListener("click", () => {
+    if (!currentUser) {
+      showAuth("Log in before adding funds.");
+      return;
+    }
+
     const amount = Number(button.dataset.deposit);
     state.balance += amount;
     els.cashierMessage.textContent = `${money(amount)} added to your prototype balance.`;
     updateBalance();
+    syncUserBalance();
   });
 });
+
+els.loginForm.addEventListener("submit", handleLogin);
+els.signupForm.addEventListener("submit", handleSignup);
+els.signOutButton.addEventListener("click", signOut);
+els.settleResults.addEventListener("click", settleResults);
 
 els.saveStarters.addEventListener("click", () => {
   startingPitchers = parseStarters(els.starterTextarea.value);
@@ -492,10 +825,12 @@ els.pitcherScoreForm.addEventListener("submit", (event) => {
 
 document.querySelector("#resetDraft").addEventListener("click", () => {
   state.roster = [];
+  state.results = [];
+  state.resultsSettled = false;
   if (state.activeBuyIn) nextRound();
   renderAll();
   switchTab("draft");
 });
 
-renderLobbies();
 renderAll();
+if (currentUser) switchTab("lobbies");

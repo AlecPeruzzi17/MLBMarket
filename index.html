@@ -17,6 +17,10 @@
           </div>
         </div>
         <div class="account-cluster">
+          <div class="user-panel">
+            <span id="accountName">Signed out</span>
+            <button id="signOutButton" class="text-button" type="button" hidden>Sign out</button>
+          </div>
           <div class="balance-panel">
             <span>Balance</span>
             <strong id="balance">$42.50</strong>
@@ -28,15 +32,56 @@
         <button class="tab active" data-tab="lobbies">Lobbies</button>
         <button class="tab" data-tab="draft">Draft Room</button>
         <button class="tab" data-tab="lineup">Lineup</button>
+        <button class="tab" data-tab="results">Results</button>
         <button class="tab" data-tab="info">Info</button>
       </nav>
+
+      <section id="auth" class="auth-screen view" aria-label="Account access">
+        <div class="auth-layout">
+          <section class="panel auth-panel">
+            <p class="eyebrow">Account access</p>
+            <h2>Log in to join a lobby.</h2>
+            <p class="muted">Create a prototype account or use an existing one. Your balance, lobby entry, and drafted lineup stay attached to this browser.</p>
+          </section>
+
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Existing player</p>
+                <h3>Log in</h3>
+              </div>
+            </div>
+            <form id="loginForm" class="account-form">
+              <label>Email <input name="email" type="email" autocomplete="email" required></label>
+              <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+              <button class="submit" type="submit">Log in</button>
+            </form>
+          </section>
+
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">New player</p>
+                <h3>Create account</h3>
+              </div>
+            </div>
+            <form id="signupForm" class="account-form">
+              <label>Display name <input name="name" autocomplete="nickname" required></label>
+              <label>Email <input name="email" type="email" autocomplete="email" required></label>
+              <label>Password <input name="password" type="password" autocomplete="new-password" minlength="6" required></label>
+              <button class="submit" type="submit">Create account</button>
+            </form>
+          </section>
+        </div>
+        <div id="authMessage" class="cashier-message" role="status"></div>
+      </section>
 
       <section id="lobbies" class="view active" aria-label="Lobby menu">
         <div class="hero-band">
           <div class="hero-copy">
             <p class="eyebrow">Morning contests</p>
             <h2>Buy in, draft clean, sweat every pitch.</h2>
-            <p>Each lobby seats 10 players. Pick a buy-in, fill a roster from randomized four-player choices, and climb the leaderboard when the real MLB slate goes live.</p>
+            <p>Log in, pick a 10-player lobby, draft a roster from randomized four-player choices, then wait for results and payout settlement.</p>
           </div>
           <div class="ticker" aria-label="Live slate notes">
             <span>Lineups lock at first pitch</span>
@@ -130,6 +175,36 @@
         </div>
       </section>
 
+      <section id="results" class="view" aria-label="Lobby results and payouts">
+        <div class="layout-grid">
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow" id="resultsStatus">Waiting for entry</p>
+                <h3>Lobby Results</h3>
+              </div>
+              <button id="settleResults" class="secondary" type="button">Simulate final stats</button>
+            </div>
+            <div id="resultsList" class="lineup-list empty-state">
+              <p>Join a lobby and submit a lineup to wait for results.</p>
+            </div>
+          </section>
+
+          <aside class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Current lobby</p>
+                <h3>Players</h3>
+              </div>
+              <span id="lobbySeatCount" class="pill">0 / 10</span>
+            </div>
+            <div id="lobbyPlayers" class="lineup-list empty-state">
+              <p>No lobby selected yet.</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
       <section id="info" class="view" aria-label="Rules and scoring">
         <div class="rules-grid">
           <section class="panel">
@@ -159,7 +234,7 @@
           <section class="panel wide">
             <p class="eyebrow">Contest rules</p>
             <h3>Lobby and payout format</h3>
-            <p class="muted">Each paid lobby contains 10 players. A roster is built from 9 hitter slots and 2 starting pitchers. The draft shows one open position at a time and four eligible players. Outfielders are grouped as OF, secondary positions are allowed, and the two SP picks are saved for the final rounds.</p>
+            <p class="muted">Players create an account, log in, enter a 10-player lobby, draft 9 hitter slots and 2 starting pitchers, wait for the slate to finish, then the top four entries are paid from the lobby payout table.</p>
             <p class="muted">For a $10 lobby, payouts are $50, $25, $12, and $10 back for fourth place. The app scales those amounts with the selected buy-in.</p>
             <p class="muted">For hitters, the prototype drafts randomly from a long qualified-hitter pool modeled around 3.1 plate appearances per team game. For pitchers, SP rounds only pull from the day's loaded starters.</p>
           </section>
