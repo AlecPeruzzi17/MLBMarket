@@ -382,7 +382,7 @@ function renderLobbies() {
     button.innerHTML = `
       <span class="eyebrow">10-player lobby</span>
       <strong>${money(buyIn)}</strong>
-      <span class="lobby-meta"><span>${filledSeats} / ${lobbySeats} seated</span><span>Top 4 paid</span></span>
+      <span class="lobby-meta"><span>${filledSeats} / ${lobbySeats} seated</span></span>
     `;
     button.addEventListener("click", () => joinLobby(buyIn));
     els.lobbyGrid.appendChild(button);
