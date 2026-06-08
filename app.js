@@ -255,7 +255,12 @@ function loadUsers() {
   const stored = readStorage(storageKeys.users);
   if (!stored) return [];
   try {
-    return JSON.parse(stored);
+    return JSON.parse(stored).map((user) => ({
+      username: user.username || user.name || user.email,
+      email: user.email,
+      password: user.password,
+      balance: Number(user.balance ?? 42.5)
+    }));
   } catch {
     return [];
   }
@@ -364,7 +369,7 @@ function renderAccount() {
     return;
   }
 
-  els.accountName.textContent = currentUser.name;
+  els.accountName.textContent = currentUser.username;
   els.signOutButton.hidden = false;
 }
 
@@ -386,7 +391,7 @@ function renderLobbies() {
 
 function buildLobby(buyIn) {
   const opponents = housePlayers
-    .filter((name) => name !== currentUser.name)
+    .filter((name) => name !== currentUser.username)
     .sort(() => Math.random() - 0.5)
     .slice(0, lobbySeats - 1)
     .map((name, index) => ({
@@ -402,7 +407,7 @@ function buildLobby(buyIn) {
     entries: [
       {
         id: currentUser.email,
-        name: currentUser.name,
+        name: currentUser.username,
         score: 0,
         payout: 0,
         isCurrentUser: true
@@ -712,8 +717,12 @@ function scorePitcher(formData) {
   );
 }
 
-function authenticate(email, password) {
-  return users.find((user) => user.email === email.toLowerCase() && user.password === password) || null;
+function authenticate(identifier, password) {
+  const normalized = identifier.trim().toLowerCase();
+  return users.find((user) => (
+    (user.email.toLowerCase() === normalized || user.username.toLowerCase() === normalized) &&
+    user.password === password
+  )) || null;
 }
 
 function startSession(user) {
@@ -730,7 +739,7 @@ function startSession(user) {
 function handleLogin(event) {
   event.preventDefault();
   const formData = new FormData(els.loginForm);
-  const user = authenticate(String(formData.get("email")), String(formData.get("password")));
+  const user = authenticate(String(formData.get("identifier")), String(formData.get("password")));
 
   if (!user) {
     els.authMessage.textContent = "No account matched those credentials.";
@@ -743,9 +752,14 @@ function handleLogin(event) {
 function handleSignup(event) {
   event.preventDefault();
   const formData = new FormData(els.signupForm);
-  const name = String(formData.get("name")).trim();
+  const username = String(formData.get("username")).trim();
   const email = String(formData.get("email")).trim().toLowerCase();
   const password = String(formData.get("password"));
+
+  if (users.some((user) => user.username.toLowerCase() === username.toLowerCase())) {
+    els.authMessage.textContent = "That username is taken. Try another one.";
+    return;
+  }
 
   if (users.some((user) => user.email === email)) {
     els.authMessage.textContent = "That email already has an account. Log in instead.";
@@ -753,7 +767,7 @@ function handleSignup(event) {
   }
 
   const user = {
-    name,
+    username,
     email,
     password,
     balance: 42.5
