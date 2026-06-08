@@ -22,16 +22,22 @@ const housePlayers = [
   "Parker James"
 ];
 const defaultStartingPitchers = [
-  { name: "Tarik Skubal", team: "DET", positions: ["SP"], avg: "2.39 ERA", power: "Ace", trend: "Probable" },
-  { name: "Zack Wheeler", team: "PHI", positions: ["SP"], avg: "2.57 ERA", power: "Ks", trend: "Probable" },
-  { name: "Paul Skenes", team: "PIT", positions: ["SP"], avg: "1.96 ERA", power: "Power", trend: "Probable" },
-  { name: "Logan Webb", team: "SF", positions: ["SP"], avg: "3.47 ERA", power: "Volume", trend: "Probable" },
-  { name: "Corbin Burnes", team: "ARI", positions: ["SP"], avg: "3.19 ERA", power: "Whiffs", trend: "Probable" },
-  { name: "Framber Valdez", team: "HOU", positions: ["SP"], avg: "2.91 ERA", power: "Grounders", trend: "Probable" },
-  { name: "Garrett Crochet", team: "BOS", positions: ["SP"], avg: "3.58 ERA", power: "Strikeouts", trend: "Probable" },
-  { name: "Max Fried", team: "NYY", positions: ["SP"], avg: "3.25 ERA", power: "Command", trend: "Probable" },
-  { name: "Yoshinobu Yamamoto", team: "LAD", positions: ["SP"], avg: "3.00 ERA", power: "Arsenal", trend: "Probable" },
-  { name: "George Kirby", team: "SEA", positions: ["SP"], avg: "3.53 ERA", power: "Control", trend: "Probable" }
+  { name: "Emerson Hancock", team: "SEA", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Trey Gibson", team: "BAL", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Connelly Early", team: "BOS", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Ian Seymour", team: "TB", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Will Warren", team: "NYY", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Gavin Williams", team: "CLE", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Cristopher Sanchez", team: "PHI", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Patrick Corbin", team: "TOR", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Spencer Arrighetti", team: "HOU", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Grayson Rodriguez", team: "LAA", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Andrew Abbott", team: "CIN", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Walker Buehler", team: "SD", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Richard Lovelady", team: "WSH", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Logan Webb", team: "SF", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Kyle Harrison", team: "MIL", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
+  { name: "Jeffrey Springs", team: "ATH", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" }
 ];
 
 const qualifiedHitterRows = `
