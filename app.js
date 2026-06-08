@@ -198,6 +198,7 @@ const els = {
   signupForm: document.querySelector("#signupForm"),
   authMessage: document.querySelector("#authMessage"),
   balance: document.querySelector("#balance"),
+  selectedLobbySize: document.querySelector("#selectedLobbySize"),
   lobbySizeButtons: document.querySelectorAll("[data-lobby-size]"),
   lobbyGrid: document.querySelector("#lobbyGrid"),
   cashierMessage: document.querySelector("#cashierMessage"),
@@ -389,9 +390,12 @@ function renderAccount() {
 
 function renderLobbies() {
   els.lobbyGrid.innerHTML = "";
+  els.selectedLobbySize.textContent = `${state.selectedLobbySize} seats`;
   els.lobbySizeButtons.forEach((button) => {
     const size = Number(button.dataset.lobbySize);
-    button.classList.toggle("active", size === state.selectedLobbySize);
+    const isSelected = size === state.selectedLobbySize;
+    button.classList.toggle("active", isSelected);
+    button.setAttribute("aria-pressed", String(isSelected));
   });
 
   lobbyBuyIns.forEach((buyIn) => {

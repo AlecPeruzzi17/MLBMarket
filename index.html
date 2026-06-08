@@ -97,12 +97,12 @@
                 <p class="eyebrow">Choose a lobby</p>
                 <h3>Buy-ins</h3>
               </div>
-              <span class="pill">5, 10, or 20 seats</span>
+              <span id="selectedLobbySize" class="pill">5 seats</span>
             </div>
             <div class="lobby-size-tabs" aria-label="Lobby size">
-              <button class="size-tab active" type="button" data-lobby-size="5">5 players</button>
-              <button class="size-tab" type="button" data-lobby-size="10">10 players</button>
-              <button class="size-tab" type="button" data-lobby-size="20">20 players</button>
+              <button class="size-tab active" type="button" data-lobby-size="5" aria-pressed="true">5 players</button>
+              <button class="size-tab" type="button" data-lobby-size="10" aria-pressed="false">10 players</button>
+              <button class="size-tab" type="button" data-lobby-size="20" aria-pressed="false">20 players</button>
             </div>
             <div id="lobbyGrid" class="lobby-grid"></div>
           </section>
