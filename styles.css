@@ -365,6 +365,30 @@ h3 {
   gap: 10px;
 }
 
+.lobby-size-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.size-tab {
+  min-height: 40px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.size-tab.active {
+  background: var(--green);
+  color: var(--ink);
+}
+
 .lobby-card,
 .player-card,
 .lineup-row,

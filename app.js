@@ -6,7 +6,7 @@ const storageKeys = {
   users: "yourLineup.users",
   session: "yourLineup.sessionEmail"
 };
-const lobbySizes = [5, 20];
+const lobbySizes = [5, 10, 20];
 const housePlayers = [
   "Maya Chen",
   "Jordan Blake",
@@ -180,6 +180,7 @@ let players = [...qualifiedHitters, ...startingPitchers];
 
 const state = {
   balance: currentUser?.balance ?? 42.5,
+  selectedLobbySize: 5,
   activeBuyIn: 0,
   lobby: null,
   results: [],
@@ -197,6 +198,7 @@ const els = {
   signupForm: document.querySelector("#signupForm"),
   authMessage: document.querySelector("#authMessage"),
   balance: document.querySelector("#balance"),
+  lobbySizeButtons: document.querySelectorAll("[data-lobby-size]"),
   lobbyGrid: document.querySelector("#lobbyGrid"),
   cashierMessage: document.querySelector("#cashierMessage"),
   choiceGrid: document.querySelector("#choiceGrid"),
@@ -387,21 +389,25 @@ function renderAccount() {
 
 function renderLobbies() {
   els.lobbyGrid.innerHTML = "";
+  els.lobbySizeButtons.forEach((button) => {
+    const size = Number(button.dataset.lobbySize);
+    button.classList.toggle("active", size === state.selectedLobbySize);
+  });
+
   lobbyBuyIns.forEach((buyIn) => {
-    lobbySizes.forEach((size) => {
-      const button = document.createElement("button");
-      button.className = "lobby-card";
-      const filledSeats = state.lobby?.buyIn === buyIn && state.lobby?.size === size
-        ? state.lobby.entries.length
-        : Math.min(size - 1, Math.max(2, Math.floor(size * 0.45) + Math.floor(buyIn) % 4));
-      button.innerHTML = `
-        <span class="eyebrow">${size}-player lobby</span>
-        <strong>${money(buyIn)}</strong>
-        <span class="lobby-meta"><span>${filledSeats} / ${size} seated</span></span>
-      `;
-      button.addEventListener("click", () => joinLobby(buyIn, size));
-      els.lobbyGrid.appendChild(button);
-    });
+    const size = state.selectedLobbySize;
+    const button = document.createElement("button");
+    button.className = "lobby-card";
+    const filledSeats = state.lobby?.buyIn === buyIn && state.lobby?.size === size
+      ? state.lobby.entries.length
+      : Math.min(size - 1, Math.max(2, Math.floor(size * 0.45) + Math.floor(buyIn) % 4));
+    button.innerHTML = `
+      <span class="eyebrow">${size}-player lobby</span>
+      <strong>${money(buyIn)}</strong>
+      <span class="lobby-meta"><span>${filledSeats} / ${size} seated</span></span>
+    `;
+    button.addEventListener("click", () => joinLobby(buyIn, size));
+    els.lobbyGrid.appendChild(button);
   });
 }
 
@@ -613,6 +619,10 @@ function ordinal(rank) {
 function payoutTable(buyIn, size) {
   if (size === 20) {
     return [buyIn * 6, buyIn * 4, buyIn * 3, buyIn * 2.2, buyIn * 1.6, buyIn * 1.2, buyIn];
+  }
+
+  if (size === 10) {
+    return [buyIn * 5, buyIn * 2.5, buyIn * 1.2, buyIn];
   }
 
   return [buyIn * 3, buyIn * 1.7];
@@ -850,6 +860,13 @@ document.querySelectorAll("[data-deposit]").forEach((button) => {
     els.cashierMessage.textContent = `${money(amount)} added to your prototype balance.`;
     updateBalance();
     syncUserBalance();
+  });
+});
+
+els.lobbySizeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.selectedLobbySize = Number(button.dataset.lobbySize);
+    renderLobbies();
   });
 });
 
