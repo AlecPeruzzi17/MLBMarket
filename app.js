@@ -402,13 +402,14 @@ function renderLobbies() {
     const size = state.selectedLobbySize;
     const button = document.createElement("button");
     button.className = "lobby-card";
-    const filledSeats = state.lobby?.buyIn === buyIn && state.lobby?.size === size
-      ? state.lobby.entries.length
-      : Math.min(size - 1, Math.max(2, Math.floor(size * 0.45) + Math.floor(buyIn) % 4));
+    const isActiveLobby = state.lobby?.buyIn === buyIn && state.lobby?.size === size;
+    const seatedMeta = isActiveLobby
+      ? `<span class="lobby-meta"><span>${state.lobby.entries.length} / ${size} seated</span></span>`
+      : "";
     button.innerHTML = `
       <span class="eyebrow">${size}-player lobby</span>
       <strong>${money(buyIn)}</strong>
-      <span class="lobby-meta"><span>${filledSeats} / ${size} seated</span></span>
+      ${seatedMeta}
     `;
     button.addEventListener("click", () => joinLobby(buyIn, size));
     els.lobbyGrid.appendChild(button);
