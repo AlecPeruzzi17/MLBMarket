@@ -265,9 +265,10 @@ h3 {
   min-height: 320px;
   padding: clamp(24px, 6vw, 58px);
   border-radius: 8px;
+  /* Fenway Park photo by Vegasjon, CC BY-SA 4.0, via Wikimedia Commons. */
   background:
     linear-gradient(90deg, rgba(7, 19, 15, 0.98) 0%, rgba(7, 19, 15, 0.72) 58%, rgba(7, 19, 15, 0.18) 100%),
-    url("https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=1600&q=80") center / cover;
+    url("https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Fenway_Park_%28with_flag%29.JPG/1280px-Fenway_Park_%28with_flag%29.JPG") center / cover;
 }
 
 .hero-band::after {
