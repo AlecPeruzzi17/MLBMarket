@@ -1,5 +1,5 @@
 const lobbyBuyIns = [0.5, 1, 5, 10, 20, 50, 100, 500];
-const rosterSlots = ["C", "1B", "2B", "3B", "SS", "OF", "OF", "OF", "UTIL", "SP", "SP"];
+const rosterSlots = ["C", "1B", "2B", "3B", "SS", "OF", "OF", "OF", "SP", "SP"];
 const choicesPerRound = 4;
 const storageKeys = {
   starters: "yourLineup.todayStarters",
@@ -476,23 +476,10 @@ function joinLobby(buyIn, size) {
 }
 
 function nextSlot() {
-  const filledCounts = state.roster.reduce((counts, pick) => {
-    counts[pick.slot] = (counts[pick.slot] || 0) + 1;
-    return counts;
-  }, {});
-
-  if (state.roster.length >= rosterSlots.length) return null;
-  if (state.roster.length >= 9) return "SP";
-
-  const openHitters = ["C", "1B", "2B", "3B", "SS", "OF", "UTIL"].filter((slot) => {
-    const max = slot === "OF" ? 3 : 1;
-    return (filledCounts[slot] || 0) < max;
-  });
-  return openHitters[Math.floor(Math.random() * openHitters.length)];
+  return rosterSlots[state.roster.length] || null;
 }
 
 function eligibleForSlot(player, slot) {
-  if (slot === "UTIL") return !player.positions.includes("SP");
   return player.positions.includes(slot);
 }
 
