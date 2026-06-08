@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Your Lineup</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main id="appShell" class="app-shell">
+      <section class="topbar" aria-label="Account and navigation">
+        <div class="brand-lockup">
+          <div class="brand-mark">YL</div>
+          <div>
+            <p class="eyebrow">Daily MLB lobby draft</p>
+            <h1>Your Lineup</h1>
+          </div>
+        </div>
+        <div class="account-cluster">
+          <div class="balance-panel">
+            <span>Balance</span>
+            <strong id="balance">$42.50</strong>
+          </div>
+        </div>
+      </section>
+
+      <nav class="tabbar" aria-label="Primary">
+        <button class="tab active" data-tab="lobbies">Lobbies</button>
+        <button class="tab" data-tab="draft">Draft Room</button>
+        <button class="tab" data-tab="lineup">Lineup</button>
+        <button class="tab" data-tab="info">Info</button>
+        <button class="tab" data-tab="admin">Admin</button>
+      </nav>
+
+      <section id="lobbies" class="view active" aria-label="Lobby menu">
+        <div class="hero-band">
+          <div class="hero-copy">
+            <p class="eyebrow">Morning contests</p>
+            <h2>Buy in, draft clean, sweat every pitch.</h2>
+            <p>Each lobby seats 10 players. Pick a buy-in, fill a roster from randomized four-player choices, and climb the leaderboard when the real MLB slate goes live.</p>
+          </div>
+          <div class="ticker" aria-label="Live slate notes">
+            <span>Lineups lock at first pitch</span>
+            <span>SP rounds always draft last</span>
+            <span id="playerPoolStatus">Qualified hitter pool ready</span>
+            <span>Top 4 paid</span>
+          </div>
+        </div>
+
+        <div class="layout-grid">
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Choose a lobby</p>
+                <h3>Buy-ins</h3>
+              </div>
+              <span class="pill">10 seats</span>
+            </div>
+            <div id="lobbyGrid" class="lobby-grid"></div>
+          </section>
+
+          <aside class="panel cashier">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Cashier</p>
+                <h3>Add funds</h3>
+              </div>
+            </div>
+            <p class="muted">Payment buttons simulate a deposit for this prototype. Real-money contests require licensed gaming operations, KYC, location checks, and compliant payment processing.</p>
+            <div class="pay-actions">
+              <button class="pay venmo" data-deposit="25">Venmo +$25</button>
+              <button class="pay apple" data-deposit="50">Apple Pay +$50</button>
+            </div>
+            <div id="cashierMessage" class="cashier-message" role="status"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="draft" class="view" aria-label="Draft room">
+        <div class="draft-board">
+          <section class="panel draft-main">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow" id="draftStatus">Join a lobby to start</p>
+                <h3 id="roundTitle">Draft Room</h3>
+              </div>
+              <span id="activeBuyIn" class="pill">$0 lobby</span>
+            </div>
+            <div id="choiceGrid" class="choice-grid empty-state">
+              <p>Select a lobby from the menu to generate your first four-player choice.</p>
+            </div>
+          </section>
+
+          <aside class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Roster build</p>
+                <h3>Slots</h3>
+              </div>
+              <span id="pickCounter" class="pill">0 / 11</span>
+            </div>
+            <div id="slotList" class="slot-list"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="lineup" class="view" aria-label="Submitted lineup">
+        <div class="layout-grid">
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Entry</p>
+                <h3>Your Lineup</h3>
+              </div>
+              <button id="resetDraft" class="secondary">New draft</button>
+            </div>
+            <div id="lineupList" class="lineup-list empty-state">
+              <p>Your submitted lineup will appear here.</p>
+            </div>
+          </section>
+
+          <aside class="panel leaderboard">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Projected lobby</p>
+                <h3>Payouts</h3>
+              </div>
+              <span id="rakeBadge" class="pill">Rake $0.00</span>
+            </div>
+            <div id="payoutList" class="payout-list"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="info" class="view" aria-label="Rules and scoring">
+        <div class="rules-grid">
+          <section class="panel">
+            <p class="eyebrow">Scoring</p>
+            <h3>Batters</h3>
+            <dl class="score-list">
+              <div><dt>Total bases</dt><dd>+1</dd></div>
+              <div><dt>RBI</dt><dd>+1</dd></div>
+              <div><dt>Run scored</dt><dd>+1</dd></div>
+              <div><dt>Walks / HBP</dt><dd>+1</dd></div>
+              <div><dt>Strikeouts</dt><dd>-1</dd></div>
+            </dl>
+          </section>
+
+          <section class="panel">
+            <p class="eyebrow">Scoring</p>
+            <h3>Pitchers</h3>
+            <dl class="score-list">
+              <div><dt>Innings pitched</dt><dd>+1</dd></div>
+              <div><dt>Strikeouts</dt><dd>+1</dd></div>
+              <div><dt>Hits / walks / HBP</dt><dd>-1</dd></div>
+              <div><dt>Earned runs</dt><dd>-2</dd></div>
+              <div><dt>Complete game</dt><dd>+5</dd></div>
+            </dl>
+          </section>
+
+          <section class="panel wide">
+            <p class="eyebrow">Contest rules</p>
+            <h3>Lobby and payout format</h3>
+            <p class="muted">Each paid lobby contains 10 players. A roster is built from 9 hitter slots and 2 starting pitchers. The draft shows one open position at a time and four eligible players. Outfielders are grouped as OF, secondary positions are allowed, and the two SP picks are saved for the final rounds.</p>
+            <p class="muted">For a $10 lobby, payouts are $50, $25, $12, and $10 back for fourth place, with $3 kept as rake. The app scales those amounts with the selected buy-in.</p>
+            <p class="muted">For hitters, the prototype drafts randomly from a long qualified-hitter pool modeled around 3.1 plate appearances per team game. For pitchers, an admin enters the starters for the day so SP rounds only pull from that slate.</p>
+          </section>
+        </div>
+      </section>
+
+      <section id="admin" class="view" aria-label="Admin tools">
+        <div class="layout-grid">
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Admin slate</p>
+                <h3>Today's Starting Pitchers</h3>
+              </div>
+              <span id="starterCount" class="pill">0 SP</span>
+            </div>
+            <p class="muted">Enter one pitcher per line as Name, Team. The final two draft rounds will use this list only.</p>
+            <textarea id="starterTextarea" class="admin-textarea" spellcheck="false" placeholder="Tarik Skubal, DET&#10;Zack Wheeler, PHI&#10;Paul Skenes, PIT&#10;Logan Webb, SF"></textarea>
+            <button id="saveStarters" class="submit" type="button">Save Starters</button>
+          </section>
+
+          <aside class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Active SP pool</p>
+                <h3>Draft Eligible</h3>
+              </div>
+            </div>
+            <div id="starterList" class="lineup-list empty-state">
+              <p>No starting pitchers entered yet.</p>
+            </div>
+          </aside>
+        </div>
+
+        <div class="rules-grid">
+          <section class="panel">
+            <p class="eyebrow">Admin scoring</p>
+            <h3>Batter Calculator</h3>
+            <form id="batterScoreForm" class="score-form">
+              <label>Total bases <input name="totalBases" type="number" min="0" value="0"></label>
+              <label>RBI <input name="rbi" type="number" min="0" value="0"></label>
+              <label>Runs <input name="runs" type="number" min="0" value="0"></label>
+              <label>Walks / HBP <input name="walksHbp" type="number" min="0" value="0"></label>
+              <label>Strikeouts <input name="batterStrikeouts" type="number" min="0" value="0"></label>
+              <button class="secondary" type="submit">Calculate</button>
+              <output id="batterScoreResult" class="score-output">0 pts</output>
+            </form>
+          </section>
+
+          <section class="panel">
+            <p class="eyebrow">Admin scoring</p>
+            <h3>Pitcher Calculator</h3>
+            <form id="pitcherScoreForm" class="score-form">
+              <label>IP <input name="innings" type="number" min="0" step="0.1" value="0"></label>
+              <label>Strikeouts <input name="pitcherStrikeouts" type="number" min="0" value="0"></label>
+              <label>Hits / walks / HBP <input name="baserunners" type="number" min="0" value="0"></label>
+              <label>Earned runs <input name="earnedRuns" type="number" min="0" value="0"></label>
+              <label>Complete game <input name="completeGame" type="number" min="0" max="1" value="0"></label>
+              <button class="secondary" type="submit">Calculate</button>
+              <output id="pitcherScoreResult" class="score-output">0 pts</output>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
