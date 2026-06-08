@@ -34,143 +34,182 @@ const housePlayers = [
   "Blake Turner"
 ];
 const defaultStartingPitchers = [
-  { name: "Emerson Hancock", team: "SEA", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Trey Gibson", team: "BAL", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Connelly Early", team: "BOS", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Ian Seymour", team: "TB", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Will Warren", team: "NYY", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Gavin Williams", team: "CLE", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Cristopher Sanchez", team: "PHI", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Patrick Corbin", team: "TOR", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Spencer Arrighetti", team: "HOU", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Grayson Rodriguez", team: "LAA", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Andrew Abbott", team: "CIN", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Walker Buehler", team: "SD", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Richard Lovelady", team: "WSH", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Logan Webb", team: "SF", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Kyle Harrison", team: "MIL", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
-  { name: "Jeffrey Springs", team: "ATH", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" }
+  { name: "Emerson Hancock", team: "SEA", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Trey Gibson", team: "BAL", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Connelly Early", team: "BOS", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Ian Seymour", team: "TB", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Will Warren", team: "NYY", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Gavin Williams", team: "CLE", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Cristopher Sanchez", team: "PHI", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Patrick Corbin", team: "TOR", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Spencer Arrighetti", team: "HOU", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Grayson Rodriguez", team: "LAA", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Andrew Abbott", team: "CIN", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Walker Buehler", team: "SD", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Richard Lovelady", team: "WSH", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Logan Webb", team: "SF", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Kyle Harrison", team: "MIL", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
+  { name: "Jeffrey Springs", team: "ATH", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" }
 ];
 
 const qualifiedHitterRows = `
-Adley Rutschman|BAL|C|.276|22 HR|3.1 PA/G
-William Contreras|MIL|C|.281|23 HR|3.1 PA/G
-Will Smith|LAD|C|.263|19 HR|3.1 PA/G
-Cal Raleigh|SEA|C|.244|31 HR|3.1 PA/G
-Salvador Perez|KC|C,1B|.271|27 HR|3.1 PA/G
-Yainer Diaz|HOU|C|.299|16 HR|3.1 PA/G
-J.T. Realmuto|PHI|C|.266|14 HR|3.1 PA/G
-Sean Murphy|ATL|C|.251|21 HR|3.1 PA/G
-Freddie Freeman|LAD|1B|.301|91 RBI|3.1 PA/G
-Bryce Harper|PHI|1B,OF|.286|30 HR|3.1 PA/G
-Vladimir Guerrero Jr.|TOR|1B|.283|26 HR|3.1 PA/G
-Pete Alonso|NYM|1B|.240|34 HR|3.1 PA/G
-Matt Olson|ATL|1B|.247|29 HR|3.1 PA/G
-Christian Walker|HOU|1B|.251|26 HR|3.1 PA/G
-Josh Naylor|ARI|1B|.284|31 HR|3.1 PA/G
-Nathaniel Lowe|WSH|1B|.265|16 HR|3.1 PA/G
-Spencer Torkelson|DET|1B|.233|25 HR|3.1 PA/G
-Triston Casas|BOS|1B|.263|24 HR|3.1 PA/G
-Michael Busch|CHC|1B|.248|21 HR|3.1 PA/G
-Yandy Diaz|TB|1B,UTIL|.281|OBP|3.1 PA/G
-Marcus Semien|TEX|2B|.255|83 R|3.1 PA/G
-Jose Altuve|HOU|2B|.295|21 HR|3.1 PA/G
-Mookie Betts|LAD|2B,SS,OF|.289|105 R|3.1 PA/G
-Ketel Marte|ARI|2B|.292|36 HR|3.1 PA/G
-Luis Arraez|SD|2B,1B|.314|Contact|3.1 PA/G
-Ozzie Albies|ATL|2B|.251|10 SB|3.1 PA/G
-Andres Gimenez|TOR|2B|.252|30 SB|3.1 PA/G
-Brice Turang|MIL|2B,SS|.254|50 SB|3.1 PA/G
-Nico Hoerner|CHC|2B,SS|.273|31 SB|3.1 PA/G
-Gleyber Torres|DET|2B|.257|15 HR|3.1 PA/G
-Jonathan India|KC|2B|.248|OBP|3.1 PA/G
-Brendan Donovan|STL|2B,OF|.278|Multi-pos|3.1 PA/G
-Jose Ramirez|CLE|3B|.279|34 SB|3.1 PA/G
-Austin Riley|ATL|3B|.268|33 HR|3.1 PA/G
-Manny Machado|SD|3B|.275|92 RBI|3.1 PA/G
-Rafael Devers|BOS|3B|.272|28 HR|3.1 PA/G
-Alex Bregman|BOS|3B|.260|26 HR|3.1 PA/G
-Matt Chapman|SF|3B|.247|27 HR|3.1 PA/G
-Nolan Arenado|STL|3B,UTIL|.272|71 RBI|3.1 PA/G
-Eugenio Suarez|ARI|3B|.256|30 HR|3.1 PA/G
-Isaac Paredes|HOU|3B,1B|.238|26 HR|3.1 PA/G
-Alec Bohm|PHI|3B,1B|.280|97 RBI|3.1 PA/G
-Max Muncy|LAD|3B,1B|.232|36 HR|3.1 PA/G
-Bobby Witt Jr.|KC|SS|.304|30/30|3.1 PA/G
-Francisco Lindor|NYM|SS|.273|29 HR|3.1 PA/G
-Gunnar Henderson|BAL|SS,3B|.281|37 HR|3.1 PA/G
-Trea Turner|PHI|SS|.295|19 SB|3.1 PA/G
-Corey Seager|TEX|SS|.278|30 HR|3.1 PA/G
-Elly De La Cruz|CIN|SS|.259|67 SB|3.1 PA/G
-Willy Adames|SF|SS|.251|32 HR|3.1 PA/G
-Dansby Swanson|CHC|SS|.244|16 HR|3.1 PA/G
-Xander Bogaerts|SD|SS,2B|.264|Multi-pos|3.1 PA/G
-Jeremy Pena|HOU|SS|.266|20 SB|3.1 PA/G
-CJ Abrams|WSH|SS|.246|31 SB|3.1 PA/G
-Bo Bichette|TOR|SS|.278|Hits|3.1 PA/G
-Oneil Cruz|PIT|SS,OF|.259|40 SB|3.1 PA/G
-Aaron Judge|NYY|OF|.294|50 HR|3.1 PA/G
-Juan Soto|NYM|OF|.288|132 BB|3.1 PA/G
-Julio Rodriguez|SEA|OF|.273|30 SB|3.1 PA/G
-Corbin Carroll|ARI|OF|.268|40 SB|3.1 PA/G
-Kyle Tucker|CHC|OF|.289|29 HR|3.1 PA/G
-Yordan Alvarez|HOU|OF,UTIL|.295|35 HR|3.1 PA/G
-Fernando Tatis Jr.|SD|OF|.276|25 HR|3.1 PA/G
-Jackson Merrill|SD|OF|.292|24 HR|3.1 PA/G
-Jarren Duran|BOS|OF|.285|34 SB|3.1 PA/G
-Steven Kwan|CLE|OF|.292|OBP|3.1 PA/G
-Teoscar Hernandez|LAD|OF|.272|33 HR|3.1 PA/G
-Brent Rooker|ATH|OF,UTIL|.293|39 HR|3.1 PA/G
-Riley Greene|DET|OF|.262|24 HR|3.1 PA/G
-Lawrence Butler|ATH|OF|.262|20/20|3.1 PA/G
-Byron Buxton|MIN|OF|.275|Power|3.1 PA/G
-Mike Trout|LAA|OF|.263|Power|3.1 PA/G
-Ronald Acuna Jr.|ATL|OF|.300|Speed|3.1 PA/G
-Michael Harris II|ATL|OF|.264|20 SB|3.1 PA/G
-Ian Happ|CHC|OF|.243|25 HR|3.1 PA/G
-Seiya Suzuki|CHC|OF,UTIL|.283|21 HR|3.1 PA/G
-Pete Crow-Armstrong|CHC|OF|.240|30 SB|3.1 PA/G
-Luis Robert Jr.|CWS|OF|.248|30 HR|3.1 PA/G
-Andrew Benintendi|CWS|OF|.245|Contact|3.1 PA/G
-TJ Friedl|CIN|OF|.269|Speed|3.1 PA/G
-Spencer Steer|CIN|OF,1B,3B|.242|20 HR|3.1 PA/G
-Lane Thomas|CLE|OF|.246|20 SB|3.1 PA/G
-Nolan Jones|COL|OF|.263|Power|3.1 PA/G
-Brenton Doyle|COL|OF|.260|30 SB|3.1 PA/G
-Kerry Carpenter|DET|OF|.284|Power|3.1 PA/G
-Kyle Stowers|MIA|OF|.250|Power|3.1 PA/G
-Jesus Sanchez|MIA|OF|.253|Power|3.1 PA/G
-Christian Yelich|MIL|OF,UTIL|.285|OBP|3.1 PA/G
-Jackson Chourio|MIL|OF|.275|20/20|3.1 PA/G
-Trevor Larnach|MIN|OF|.250|Power|3.1 PA/G
-Brandon Nimmo|NYM|OF|.270|OBP|3.1 PA/G
-Cody Bellinger|NYY|OF,1B|.266|20 HR|3.1 PA/G
-Jasson Dominguez|NYY|OF|.250|Speed|3.1 PA/G
-Bryan Reynolds|PIT|OF|.275|24 HR|3.1 PA/G
-Randy Arozarena|SEA|OF|.250|20/20|3.1 PA/G
-Victor Robles|SEA|OF|.265|Speed|3.1 PA/G
-Heliot Ramos|SF|OF|.269|22 HR|3.1 PA/G
-Lars Nootbaar|STL|OF|.244|OBP|3.1 PA/G
-Jordan Walker|STL|OF|.252|Power|3.1 PA/G
-Josh Lowe|TB|OF|.265|Speed|3.1 PA/G
-George Springer|TOR|OF|.257|20 HR|3.1 PA/G
-Daulton Varsho|TOR|OF|.238|Power|3.1 PA/G
-James Wood|WSH|OF|.264|Power|3.1 PA/G
-Dylan Crews|WSH|OF|.246|Speed|3.1 PA/G
-Shohei Ohtani|LAD|UTIL|.310|54 HR|3.1 PA/G
-Marcell Ozuna|ATL|UTIL,OF|.302|39 HR|3.1 PA/G
-Kyle Schwarber|PHI|UTIL,OF|.248|38 HR|3.1 PA/G
-Ryan O'Hearn|BAL|UTIL,1B,OF|.275|Platoon|3.1 PA/G
-Masataka Yoshida|BOS|UTIL,OF|.270|Contact|3.1 PA/G
-Jorge Soler|LAA|UTIL,OF|.235|Power|3.1 PA/G
-Giancarlo Stanton|NYY|UTIL,OF|.240|Power|3.1 PA/G
-J.D. Martinez|FA|UTIL|.255|Power|3.1 PA/G
-Harold Ramirez|FA|UTIL,OF|.280|Contact|3.1 PA/G
+Brandon Marsh|PHI|OF|.338|.889|Patrick Corbin
+Otto Lopez|MIA|SS|.336|.845|Off slate
+Jung Hoo Lee|SF|OF|.323|.802|Richard Lovelady
+Luis Arraez|SF|2B|.323|.790|Richard Lovelady
+Troy Johnston|COL|OF|.314|.800|Off slate
+Josh Jung|TEX|3B|.313|.855|Off slate
+Nick Gonzales|PIT|3B|.309|.746|Off slate
+Michael Harris II|ATL|OF|.306|.863|Off slate
+Ernie Clement|TOR|2B|.306|.786|Cristopher Sánchez
+Riley Greene|DET|OF|.305|.844|Off slate
+Drake Baldwin|ATL|C|.303|.932|Off slate
+Jordan Walker|STL|OF|.303|.922|Off slate
+Xavier Edwards|MIA|2B|.302|.840|Off slate
+Ben Rice|NYY|1B|.299|1.034|Gavin Williams
+Willson Contreras|BOS|1B|.296|.927|Ian Seymour
+Ezequiel Duran|TEX|2B|.293|.804|Off slate
+Kevin McGonigle|DET|SS|.291|.820|Off slate
+Alec Burleson|STL|1B|.290|.815|Off slate
+Randy Arozarena|SEA|OF|.288|.822|Trey Gibson
+Vladimir Guerrero Jr.|TOR|1B|.287|.752|Cristopher Sánchez
+CJ Abrams|WSH|SS|.286|.914|Logan Webb
+Spencer Horwitz|PIT|1B|.286|.846|Off slate
+Ryan O'Hearn|PIT|OF|.286|.826|Off slate
+William Contreras|MIL|C|.285|.735|Jeffrey Springs
+Corbin Carroll|AZ|OF|.285|.928|Off slate
+Ceddanne Rafaela|BOS|OF|.285|.776|Ian Seymour
+Andy Pages|LAD|OF|.283|.852|Off slate
+Jake Bauers|MIL|1B|.281|.892|Jeffrey Springs
+Shea Langeliers|ATH|C|.281|.880|Kyle Harrison
+Brice Turang|MIL|2B|.281|.881|Jeffrey Springs
+Ildemaro Vargas|AZ|1B|.280|.750|Off slate
+Freddie Freeman|LAD|1B|.280|.838|Off slate
+Brayan Rocchio|CLE|SS|.280|.766|Will Warren
+Elly De La Cruz|CIN|SS|.280|.855|Walker Buehler
+Bobby Witt Jr.|KC|SS|.280|.810|Off slate
+Wilyer Abreu|BOS|OF|.277|.761|Ian Seymour
+Nick Kurtz|ATH|1B|.276|.927|Kyle Harrison
+Chandler Simpson|TB|OF|.276|.640|Connelly Early
+Junior Caminero|TB|3B|.275|.871|Connelly Early
+Juan Soto|NYM|OF|.275|.894|Off slate
+Ozzie Albies|ATL|2B|.275|.774|Off slate
+Chase Meidroth|CWS|2B|.274|.735|Off slate
+Fernando Tatis Jr.|SD|OF|.273|.670|Andrew Abbott
+Cody Bellinger|NYY|OF|.272|.845|Gavin Williams
+Konnor Griffin|PIT|SS|.270|.729|Off slate
+Jonathan Aranda|TB|1B|.269|.836|Connelly Early
+TJ Rumfield|COL|1B|.268|.763|Off slate
+Matt Olson|ATL|1B|.267|.877|Off slate
+Maikel Garcia|KC|3B|.266|.705|Off slate
+Spencer Steer|CIN|OF|.266|.792|Walker Buehler
+James Wood|WSH|OF|.265|.936|Logan Webb
+Carson Benge|NYM|OF|.265|.733|Off slate
+Bryce Harper|PHI|1B|.264|.875|Patrick Corbin
+Oneil Cruz|PIT|OF|.264|.822|Off slate
+Bryan Reynolds|PIT|OF|.263|.805|Off slate
+Willi Castro|COL|2B|.262|.703|Off slate
+Liam Hicks|MIA|C|.262|.807|Off slate
+Mauricio Dubón|ATL|SS|.260|.731|Off slate
+Taylor Ward|BAL|OF|.258|.761|Emerson Hancock
+Pete Crow-Armstrong|CHC|OF|.258|.784|Off slate
+Max Muncy|LAD|3B|.258|.852|Off slate
+Julio Rodríguez|SEA|OF|.257|.770|Trey Gibson
+Byron Buxton|MIN|OF|.257|.868|Off slate
+Nolan Arenado|AZ|3B|.256|.773|Off slate
+Luis García Jr.|WSH|1B|.256|.726|Logan Webb
+Josh Naylor|SEA|1B|.256|.680|Trey Gibson
+Daulton Varsho|TOR|OF|.256|.739|Cristopher Sánchez
+Chase DeLauter|CLE|OF|.254|.732|Will Warren
+Ronald Acuña Jr.|ATL|OF|.254|.798|Off slate
+Daylen Lile|WSH|OF|.254|.720|Logan Webb
+Sal Stewart|CIN|1B|.253|.801|Walker Buehler
+Nolan Schanuel|LAA|1B|.253|.680|Spencer Arrighetti
+Brandon Lowe|PIT|2B|.252|.858|Off slate
+Cole Young|SEA|2B|.252|.678|Trey Gibson
+Jac Caglianone|KC|OF|.250|.729|Off slate
+Brandon Nimmo|TEX|OF|.249|.728|Off slate
+Christian Walker|HOU|1B|.248|.815|Grayson Rodriguez
+Aaron Judge|NYY|OF|.248|.908|Gavin Williams
+Seiya Suzuki|CHC|OF|.247|.752|Off slate
+Austin Martin|MIN|OF|.247|.680|Off slate
+Nico Hoerner|CHC|2B|.247|.678|Off slate
+Ketel Marte|AZ|2B|.246|.743|Off slate
+Michael Busch|CHC|1B|.246|.759|Off slate
+JJ Wetherholt|STL|2B|.246|.753|Off slate
+Matt Chapman|SF|3B|.245|.695|Richard Lovelady
+Garrett Mitchell|MIL|OF|.244|.755|Jeffrey Springs
+Alex Bregman|CHC|3B|.243|.669|Off slate
+Jo Adell|LAA|OF|.243|.675|Spencer Arrighetti
+Miguel Vargas|CWS|3B|.242|.859|Off slate
+Willy Adames|SF|SS|.242|.734|Richard Lovelady
+Hunter Goodman|COL|C|.242|.828|Off slate
+Pete Alonso|BAL|1B|.242|.767|Emerson Hancock
+Isaac Paredes|HOU|3B|.242|.749|Grayson Rodriguez
+Rafael Devers|SF|1B|.240|.712|Richard Lovelady
+Munetaka Murakami|CWS|1B|.240|.938|Off slate
+Luke Keaschall|MIN|2B|.240|.621|Off slate
+Jake Burger|TEX|1B|.237|.705|Off slate
+Geraldo Perdomo|AZ|SS|.237|.684|Off slate
+José Ramírez|CLE|3B|.237|.770|Will Warren
+Brooks Lee|MIN|SS|.237|.693|Off slate
+Kyle Tucker|LAD|OF|.236|.716|Off slate
+Masyn Winn|STL|SS|.236|.640|Off slate
+Kazuma Okamoto|TOR|3B|.235|.748|Cristopher Sánchez
+Jeff McNeil|ATH|2B|.235|.615|Kyle Harrison
+Dillon Dingler|DET|C|.235|.808|Off slate
+Brett Baty|NYM|3B|.235|.640|Off slate
+Bo Bichette|NYM|3B|.234|.615|Off slate
+Jazz Chisholm Jr.|NYY|2B|.233|.700|Gavin Williams
+Angel Martínez|CLE|OF|.232|.689|Will Warren
+Ian Happ|CHC|OF|.232|.832|Off slate
+Jacob Young|WSH|OF|.232|.673|Logan Webb
+Zach Neto|LAA|SS|.231|.778|Spencer Arrighetti
+Gavin Sheets|SD|1B|.229|.777|Andrew Abbott
+Trea Turner|PHI|SS|.229|.627|Patrick Corbin
+Tyler Soderstrom|ATH|OF|.228|.747|Kyle Harrison
+J.P. Crawford|SEA|SS|.228|.765|Trey Gibson
+Xander Bogaerts|SD|SS|.226|.648|Andrew Abbott
+Mike Trout|LAA|OF|.226|.844|Spencer Arrighetti
+Marcus Semien|NYM|2B|.226|.639|Off slate
+Kyle Karros|COL|3B|.225|.664|Off slate
+Colson Montgomery|CWS|SS|.225|.801|Off slate
+Alec Bohm|PHI|3B|.224|.641|Patrick Corbin
+Andrés Giménez|TOR|SS|.224|.624|Cristopher Sánchez
+Sal Frelick|MIL|OF|.223|.607|Jeffrey Springs
+Trent Grisham|NYY|OF|.221|.732|Gavin Williams
+Gunnar Henderson|BAL|SS|.221|.695|Emerson Hancock
+Vinnie Pasquantino|KC|1B|.220|.658|Off slate
+Steven Kwan|CLE|OF|.220|.600|Will Warren
+Cam Smith|HOU|OF|.219|.658|Grayson Rodriguez
+Bryson Stott|PHI|2B|.218|.642|Patrick Corbin
+Isaac Collins|KC|OF|.216|.647|Off slate
+Mark Vientos|NYM|1B|.214|.618|Off slate
+Carter Jensen|KC|C|.213|.667|Off slate
+Spencer Torkelson|DET|1B|.212|.712|Off slate
+Jarren Duran|BOS|OF|.211|.665|Ian Seymour
+Ezequiel Tovar|COL|SS|.209|.582|Off slate
+Austin Riley|ATL|3B|.208|.642|Off slate
+Matt McLain|CIN|2B|.206|.671|Walker Buehler
+Connor Norby|MIA|1B|.205|.642|Off slate
+Salvador Perez|KC|C|.204|.599|Off slate
+Ramón Laureano|SD|OF|.203|.660|Andrew Abbott
+Luis Rengifo|MIL|3B|.202|.529|Jeffrey Springs
+Jackson Merrill|SD|OF|.202|.604|Andrew Abbott
+Jakob Marsee|MIA|OF|.201|.634|Off slate
+Adolis García|PHI|OF|.199|.600|Patrick Corbin
+Nolan Gorman|STL|3B|.199|.606|Off slate
+Nasim Nuñez|WSH|2B|.199|.509|Logan Webb
+Caleb Durbin|BOS|3B|.192|.547|Ian Seymour
+Cedric Mullins|TB|OF|.182|.561|Connelly Early
+Dansby Swanson|CHC|SS|.180|.607|Off slate
+Evan Carter|TEX|OF|.172|.617|Off slate
+Manny Machado|SD|3B|.169|.596|Andrew Abbott
 `.trim();
 
 const qualifiedHitters = qualifiedHitterRows.split("\n").map((row) => {
-  const [name, team, positions, avg, power, trend] = row.split("|");
-  return { name, team, positions: positions.split(","), avg, power, trend };
+  const [name, team, positions, avg, ops, opponent] = row.split("|");
+  return { name, team, positions: positions.split(","), avg, ops, opponent };
 });
 
 let users = loadUsers();
@@ -323,9 +362,9 @@ function parseStarters(text) {
         name: namePart,
         team: teamPart || "MLB",
         positions: ["SP"],
-        avg: "Admin",
-        power: "Starter",
-        trend: "Today"
+        avg: "SP",
+        ops: "--",
+        opponent: "Today"
       };
     })
     .filter((player) => player.name);
@@ -484,6 +523,22 @@ function eligibleForSlot(player, slot) {
   return player.positions.includes(slot);
 }
 
+function draftCardStats(player) {
+  if (player.positions.includes("SP")) {
+    return [
+      ["Role", "Starter"],
+      ["Team", player.team],
+      ["Status", player.opponent || "Today"]
+    ];
+  }
+
+  return [
+    ["AVG", player.avg],
+    ["OPS", player.ops],
+    ["OPP SP", player.opponent]
+  ];
+}
+
 function nextRound() {
   state.currentSlot = nextSlot();
   if (!state.currentSlot) {
@@ -545,15 +600,14 @@ function renderDraft() {
     const card = document.createElement("button");
     card.className = "player-card";
     card.style.setProperty("--card-delay", `${index * 85}ms`);
+    const stats = draftCardStats(player);
     card.innerHTML = `
       <div>
         <div class="player-name">${player.name}</div>
         <div class="player-team">${player.team} / ${player.positions.join(", ")}</div>
       </div>
       <div class="stat-strip">
-        <div><span>Form</span><strong>${player.avg}</strong></div>
-        <div><span>Edge</span><strong>${player.power}</strong></div>
-        <div><span>Status</span><strong>${player.trend}</strong></div>
+        ${stats.map(([label, value]) => `<div><span>${label}</span><strong>${value}</strong></div>`).join("")}
       </div>
     `;
     card.addEventListener("click", () => choosePlayer(player.name));
@@ -897,3 +951,5 @@ document.querySelector("#resetDraft").addEventListener("click", () => {
 
 renderAll();
 if (currentUser) switchTab("lobbies");
+
+
