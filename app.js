@@ -27,7 +27,11 @@ const defaultStartingPitchers = [
   { name: "Paul Skenes", team: "PIT", positions: ["SP"], avg: "1.96 ERA", power: "Power", trend: "Probable" },
   { name: "Logan Webb", team: "SF", positions: ["SP"], avg: "3.47 ERA", power: "Volume", trend: "Probable" },
   { name: "Corbin Burnes", team: "ARI", positions: ["SP"], avg: "3.19 ERA", power: "Whiffs", trend: "Probable" },
-  { name: "Framber Valdez", team: "HOU", positions: ["SP"], avg: "2.91 ERA", power: "Grounders", trend: "Probable" }
+  { name: "Framber Valdez", team: "HOU", positions: ["SP"], avg: "2.91 ERA", power: "Grounders", trend: "Probable" },
+  { name: "Garrett Crochet", team: "BOS", positions: ["SP"], avg: "3.58 ERA", power: "Strikeouts", trend: "Probable" },
+  { name: "Max Fried", team: "NYY", positions: ["SP"], avg: "3.25 ERA", power: "Command", trend: "Probable" },
+  { name: "Yoshinobu Yamamoto", team: "LAD", positions: ["SP"], avg: "3.00 ERA", power: "Arsenal", trend: "Probable" },
+  { name: "George Kirby", team: "SEA", positions: ["SP"], avg: "3.53 ERA", power: "Control", trend: "Probable" }
 ];
 
 const qualifiedHitterRows = `
