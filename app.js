@@ -6,7 +6,7 @@ const storageKeys = {
   users: "yourLineup.users",
   session: "yourLineup.sessionEmail"
 };
-const lobbySeats = 10;
+const lobbySizes = [5, 20];
 const housePlayers = [
   "Maya Chen",
   "Jordan Blake",
@@ -19,7 +19,19 @@ const housePlayers = [
   "Devin Ortiz",
   "Cameron Lee",
   "Quinn Foster",
-  "Parker James"
+  "Parker James",
+  "Alex Reed",
+  "Casey Young",
+  "Drew Bennett",
+  "Jamie Ford",
+  "Kendall Hayes",
+  "Morgan Price",
+  "Reese Cole",
+  "Taylor Grant",
+  "Skyler Quinn",
+  "Rowan Pierce",
+  "Hayden Scott",
+  "Blake Turner"
 ];
 const defaultStartingPitchers = [
   { name: "Emerson Hancock", team: "SEA", positions: ["SP"], avg: "Probable", power: "Starter", trend: "Today" },
@@ -376,24 +388,28 @@ function renderAccount() {
 function renderLobbies() {
   els.lobbyGrid.innerHTML = "";
   lobbyBuyIns.forEach((buyIn) => {
-    const button = document.createElement("button");
-    button.className = "lobby-card";
-    const filledSeats = state.lobby?.buyIn === buyIn ? state.lobby.entries.length : Math.min(lobbySeats - 1, 4 + Math.floor(buyIn) % 5);
-    button.innerHTML = `
-      <span class="eyebrow">10-player lobby</span>
-      <strong>${money(buyIn)}</strong>
-      <span class="lobby-meta"><span>${filledSeats} / ${lobbySeats} seated</span></span>
-    `;
-    button.addEventListener("click", () => joinLobby(buyIn));
-    els.lobbyGrid.appendChild(button);
+    lobbySizes.forEach((size) => {
+      const button = document.createElement("button");
+      button.className = "lobby-card";
+      const filledSeats = state.lobby?.buyIn === buyIn && state.lobby?.size === size
+        ? state.lobby.entries.length
+        : Math.min(size - 1, Math.max(2, Math.floor(size * 0.45) + Math.floor(buyIn) % 4));
+      button.innerHTML = `
+        <span class="eyebrow">${size}-player lobby</span>
+        <strong>${money(buyIn)}</strong>
+        <span class="lobby-meta"><span>${filledSeats} / ${size} seated</span></span>
+      `;
+      button.addEventListener("click", () => joinLobby(buyIn, size));
+      els.lobbyGrid.appendChild(button);
+    });
   });
 }
 
-function buildLobby(buyIn) {
+function buildLobby(buyIn, size) {
   const opponents = housePlayers
     .filter((name) => name !== currentUser.username)
     .sort(() => Math.random() - 0.5)
-    .slice(0, lobbySeats - 1)
+    .slice(0, size - 1)
     .map((name, index) => ({
       id: `house-${index}`,
       name,
@@ -404,6 +420,7 @@ function buildLobby(buyIn) {
 
   return {
     buyIn,
+    size,
     entries: [
       {
         id: currentUser.email,
@@ -417,7 +434,7 @@ function buildLobby(buyIn) {
   };
 }
 
-function joinLobby(buyIn) {
+function joinLobby(buyIn, size) {
   if (!currentUser) {
     showAuth("Log in or create an account before joining a lobby.");
     return;
@@ -435,11 +452,11 @@ function joinLobby(buyIn) {
 
   state.balance -= buyIn;
   state.activeBuyIn = buyIn;
-  state.lobby = buildLobby(buyIn);
+  state.lobby = buildLobby(buyIn, size);
   state.results = [];
   state.resultsSettled = false;
   state.roster = [];
-  els.cashierMessage.textContent = `${money(buyIn)} lobby joined. Your seat is locked.`;
+  els.cashierMessage.textContent = `${money(buyIn)} ${size}-player lobby joined. Your seat is locked.`;
   updateBalance();
   syncUserBalance();
   nextRound();
@@ -500,7 +517,9 @@ function choosePlayer(playerName) {
 }
 
 function renderDraft() {
-  els.activeBuyIn.textContent = state.activeBuyIn ? `${money(state.activeBuyIn)} lobby` : "$0 lobby";
+  els.activeBuyIn.textContent = state.activeBuyIn
+    ? `${money(state.activeBuyIn)} / ${state.lobby?.size || 0} players`
+    : "$0 lobby";
   els.pickCounter.textContent = `${state.roster.length} / ${rosterSlots.length}`;
 
   if (!state.activeBuyIn) {
@@ -574,23 +593,33 @@ function renderLineup() {
 
 function renderPayouts() {
   const buyIn = state.activeBuyIn || 10;
-  const payouts = [
-    ["1st", buyIn * 5],
-    ["2nd", buyIn * 2.5],
-    ["3rd", buyIn * 1.2],
-    ["4th", buyIn]
-  ];
+  const size = state.lobby?.size || 5;
+  const payouts = payoutTable(buyIn, size);
   els.payoutList.innerHTML = "";
-  payouts.forEach(([place, amount]) => {
+  payouts.forEach((amount, index) => {
     const row = document.createElement("div");
     row.className = "payout-row";
-    row.innerHTML = `<span>${place}</span><strong>${money(amount)}</strong>`;
+    row.innerHTML = `<span>${ordinal(index + 1)}</span><strong>${money(amount)}</strong>`;
     els.payoutList.appendChild(row);
   });
 }
 
-function payoutForRank(rank, buyIn) {
-  const payouts = [buyIn * 5, buyIn * 2.5, buyIn * 1.2, buyIn];
+function ordinal(rank) {
+  const suffixes = ["th", "st", "nd", "rd"];
+  const value = rank % 100;
+  return `${rank}${suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]}`;
+}
+
+function payoutTable(buyIn, size) {
+  if (size === 20) {
+    return [buyIn * 6, buyIn * 4, buyIn * 3, buyIn * 2.2, buyIn * 1.6, buyIn * 1.2, buyIn];
+  }
+
+  return [buyIn * 3, buyIn * 1.7];
+}
+
+function payoutForRank(rank, buyIn, size) {
+  const payouts = payoutTable(buyIn, size);
   return payouts[rank - 1] || 0;
 }
 
@@ -608,7 +637,7 @@ function settleResults() {
     .map((entry, index) => ({
       ...entry,
       rank: index + 1,
-      payout: payoutForRank(index + 1, state.activeBuyIn)
+      payout: payoutForRank(index + 1, state.activeBuyIn, state.lobby.size)
     }));
 
   const userResult = state.results.find((entry) => entry.isCurrentUser);
@@ -623,7 +652,7 @@ function settleResults() {
 
 function renderLobbyPlayers() {
   const entries = state.lobby?.entries || [];
-  els.lobbySeatCount.textContent = `${entries.length} / ${lobbySeats}`;
+  els.lobbySeatCount.textContent = state.lobby ? `${entries.length} / ${state.lobby.size}` : "0 / 0";
 
   if (!entries.length) {
     els.lobbyPlayers.className = "lineup-list empty-state";
