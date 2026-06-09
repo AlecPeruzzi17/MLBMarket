@@ -374,7 +374,8 @@ function setPlayerPoolStatus() {
   const starterText = startingPitchers.length
     ? `${startingPitchers.length} projected SPs loaded`
     : "SP pool pending";
-  els.playerPoolStatus.textContent = `${qualifiedHitters.length} qualified hitters / ${starterText}`;
+  const activeHitters = qualifiedHitters.filter((player) => player.opponent !== "Off slate").length;
+  els.playerPoolStatus.textContent = `${activeHitters} hitters vs listed SP / ${starterText}`;
 }
 
 function refreshPlayers() {
@@ -520,6 +521,7 @@ function nextSlot() {
 }
 
 function eligibleForSlot(player, slot) {
+  if (slot !== "SP" && player.opponent === "Off slate") return false;
   return player.positions.includes(slot);
 }
 
@@ -580,7 +582,7 @@ function renderDraft() {
     els.draftStatus.textContent = "Join a lobby to start";
     els.roundTitle.textContent = "Draft Room";
     els.choiceGrid.className = "choice-grid empty-state";
-    els.choiceGrid.innerHTML = "<p>Select a lobby from the menu to generate your first four-player choice.</p>";
+    els.choiceGrid.innerHTML = "<p>Select a lobby from the menu to generate your first eligible player choice.</p>";
     return;
   }
 
