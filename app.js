@@ -229,10 +229,29 @@ Evan Carter|TEX|OF|.172|.617|Off slate
 Manny Machado|SD|3B|.169|.596|Andrew Abbott
 `.trim();
 
-const qualifiedHitters = qualifiedHitterRows.split("\n").map((row) => {
+const catcherEligibilityRows = `
+Carter Jensen|KC|C|.214|.668|MacKenzie Gore
+Hunter Goodman|COL|C|.243|.845|Shota Imanaga
+Liam Hicks|MIA|C|.261|.803|Ryne Nelson
+Nick Fortes|TB|C|.250|.616|Jake Bennett
+Salvador Perez|KC|C|.201|.589|MacKenzie Gore
+Samuel Basallo|BAL|C|.263|.802|George Kirby
+Shea Langeliers|ATH|C|.283|.881|Brandon Sproat
+Tyler Stephenson|CIN|C|.212|.654|Michael King
+Will Smith|LAD|C|.249|.720|Jared Jones
+William Contreras|MIL|C|.286|.744|Jack Perkins
+`.trim();
+
+function parseHitterRow(row) {
   const [name, team, positions, avg, ops, opponent] = row.split("|");
   return { name, team, positions: positions.split(","), avg, ops, opponent };
-});
+}
+
+const baseQualifiedHitters = qualifiedHitterRows.split("\n").map(parseHitterRow);
+const catcherEligibilityHitters = catcherEligibilityRows.split("\n").map(parseHitterRow);
+const qualifiedHitters = [
+  ...new Map([...baseQualifiedHitters, ...catcherEligibilityHitters].map((player) => [player.name, player])).values()
+];
 
 let users = loadUsers();
 let currentUser = loadCurrentUser();
