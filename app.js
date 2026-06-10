@@ -63,6 +63,16 @@ const defaultStartingPitchers = [
   { name: "Peter Lambert", team: "HOU", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
   { name: "Reid Detmers", team: "LAA", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" }
 ];
+const injuredPlayers = new Set([
+  "Aaron Judge",
+  "Drake Baldwin",
+  "Elly De La Cruz",
+  "J.P. Crawford",
+  "Jared Jones",
+  "Konnor Griffin",
+  "Max Scherzer",
+  "Munetaka Murakami"
+]);
 
 const qualifiedHitterRows = `
 Brandon Marsh|PHI|OF|.338|.889|Patrick Corbin
@@ -383,10 +393,11 @@ function parseStarters(text) {
 }
 
 function setPlayerPoolStatus() {
-  const starterText = startingPitchers.length
-    ? `${startingPitchers.length} projected SPs loaded`
+  const activeStarters = startingPitchers.filter((player) => !isInjured(player)).length;
+  const starterText = activeStarters
+    ? `${activeStarters} projected SPs loaded`
     : "SP pool pending";
-  const activeHitters = qualifiedHitters.filter((player) => player.opponent !== "Off slate").length;
+  const activeHitters = qualifiedHitters.filter((player) => player.opponent !== "Off slate" && !isInjured(player)).length;
   els.playerPoolStatus.textContent = `${activeHitters} hitters vs listed SP / ${starterText}`;
 }
 
@@ -532,7 +543,12 @@ function nextSlot() {
   return rosterSlots[state.roster.length] || null;
 }
 
+function isInjured(player) {
+  return injuredPlayers.has(player.name);
+}
+
 function eligibleForSlot(player, slot) {
+  if (isInjured(player)) return false;
   if (slot !== "SP" && player.opponent === "Off slate") return false;
   return player.positions.includes(slot);
 }
