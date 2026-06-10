@@ -393,9 +393,8 @@ function parseStarters(text) {
 }
 
 function setPlayerPoolStatus() {
-  const activeStarters = startingPitchers.filter((player) => !isInjured(player)).length;
-  const starterText = activeStarters
-    ? `${activeStarters} projected SPs loaded`
+  const starterText = startingPitchers.length
+    ? `${startingPitchers.length} projected SPs loaded`
     : "SP pool pending";
   const activeHitters = qualifiedHitters.filter((player) => player.opponent !== "Off slate" && !isInjured(player)).length;
   els.playerPoolStatus.textContent = `${activeHitters} hitters vs listed SP / ${starterText}`;
@@ -548,7 +547,7 @@ function isInjured(player) {
 }
 
 function eligibleForSlot(player, slot) {
-  if (isInjured(player)) return false;
+  if (slot !== "SP" && isInjured(player)) return false;
   if (slot !== "SP" && player.opponent === "Off slate") return false;
   return player.positions.includes(slot);
 }
