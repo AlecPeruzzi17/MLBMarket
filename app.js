@@ -2,37 +2,9 @@ const lobbyBuyIns = [0.5, 1, 5, 10, 20, 50, 100, 500];
 const rosterSlots = ["C", "1B", "2B", "3B", "SS", "OF", "OF", "OF", "SP", "SP"];
 const choicesPerRound = 4;
 const storageKeys = {
-  starters: "yourLineup.todayStarters",
-  users: "yourLineup.users",
-  session: "yourLineup.sessionEmail"
+  starters: "yourLineup.todayStarters"
 };
 const lobbySizes = [5, 10, 20];
-const housePlayers = [
-  "Maya Chen",
-  "Jordan Blake",
-  "Sam Rivera",
-  "Tessa Morgan",
-  "Miles Carter",
-  "Riley Brooks",
-  "Nico Walsh",
-  "Avery Stone",
-  "Devin Ortiz",
-  "Cameron Lee",
-  "Quinn Foster",
-  "Parker James",
-  "Alex Reed",
-  "Casey Young",
-  "Drew Bennett",
-  "Jamie Ford",
-  "Kendall Hayes",
-  "Morgan Price",
-  "Reese Cole",
-  "Taylor Grant",
-  "Skyler Quinn",
-  "Rowan Pierce",
-  "Hayden Scott",
-  "Blake Turner"
-];
 const defaultStartingPitchers = [
   { name: "Jake Bennett", team: "BOS", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
   { name: "Drew Rasmussen", team: "TB", positions: ["SP"], avg: "SP", ops: "--", opponent: "Today" },
@@ -253,10 +225,10 @@ const qualifiedHitters = [
   ...new Map([...baseQualifiedHitters, ...catcherEligibilityHitters].map((player) => [player.name, player])).values()
 ];
 
-let users = loadUsers();
-let currentUser = loadCurrentUser();
+let currentUser = null;
 let startingPitchers = loadStoredStarters();
 let players = [...qualifiedHitters, ...startingPitchers];
+let lobbySummaries = [];
 
 const state = {
   balance: currentUser?.balance ?? 42.5,
@@ -342,39 +314,26 @@ function removeStorage(key) {
   try {
     localStorage.removeItem(key);
   } catch {
-    // Storage is optional in this static prototype.
+    // Starter overrides still work when browser storage is available.
   }
 }
 
-function loadUsers() {
-  const stored = readStorage(storageKeys.users);
-  if (!stored) return [];
-  try {
-    return JSON.parse(stored).map((user) => ({
-      username: user.username || user.name || user.email,
-      email: user.email,
-      password: user.password,
-      balance: Number(user.balance ?? 42.5)
-    }));
-  } catch {
-    return [];
+async function apiRequest(path, options = {}) {
+  const response = await fetch(path, {
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {})
+    },
+    ...options
+  });
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(payload.error || "Request failed.");
   }
-}
 
-function saveUsers() {
-  writeStorage(storageKeys.users, JSON.stringify(users));
-}
-
-function loadCurrentUser() {
-  const email = readStorage(storageKeys.session);
-  if (!email) return null;
-  return loadUsers().find((user) => user.email === email) || null;
-}
-
-function saveCurrentUser() {
-  if (!currentUser) return;
-  users = users.map((user) => (user.email === currentUser.email ? currentUser : user));
-  saveUsers();
+  return payload;
 }
 
 function loadStoredStarters() {
@@ -424,10 +383,16 @@ function refreshPlayers() {
   setPlayerPoolStatus();
 }
 
-function syncUserBalance() {
-  if (!currentUser) return;
-  currentUser.balance = state.balance;
-  saveCurrentUser();
+async function addFunds(amount) {
+  const payload = await apiRequest("/api/deposit", {
+    method: "POST",
+    body: JSON.stringify({ amount })
+  });
+  currentUser = payload.user;
+  state.balance = currentUser.balance;
+  updateBalance();
+  renderAccount();
+  return payload.user;
 }
 
 function showAuth(message = "") {
@@ -481,11 +446,13 @@ function renderLobbies() {
 
   lobbyBuyIns.forEach((buyIn) => {
     const size = state.selectedLobbySize;
+    const summary = lobbySummaries.find((item) => item.buyIn === buyIn && item.size === size);
     const button = document.createElement("button");
     button.className = "lobby-card";
     const isActiveLobby = state.lobby?.buyIn === buyIn && state.lobby?.size === size;
-    const seatedMeta = isActiveLobby
-      ? `<span class="lobby-meta"><span>${state.lobby.entries.length} / ${size} seated</span></span>`
+    const seated = isActiveLobby ? state.lobby.entries.length : summary?.seated || 0;
+    const seatedMeta = seated
+      ? `<span class="lobby-meta"><span>${seated} / ${size} seated</span></span>`
       : "";
     button.innerHTML = `
       <span class="eyebrow">${size}-player lobby</span>
@@ -498,36 +465,22 @@ function renderLobbies() {
   });
 }
 
-function buildLobby(buyIn, size) {
-  const opponents = housePlayers
-    .filter((name) => name !== currentUser.username)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, size - 1)
-    .map((name, index) => ({
-      id: `house-${index}`,
-      name,
-      score: 0,
-      payout: 0,
-      isCurrentUser: false
-    }));
+async function loadLobbySummaries() {
+  if (!currentUser) {
+    lobbySummaries = [];
+    return;
+  }
 
-  return {
-    buyIn,
-    size,
-    entries: [
-      {
-        id: currentUser.email,
-        name: currentUser.username,
-        score: 0,
-        payout: 0,
-        isCurrentUser: true
-      },
-      ...opponents
-    ]
-  };
+  try {
+    const payload = await apiRequest(`/api/lobbies?size=${state.selectedLobbySize}`);
+    lobbySummaries = payload.lobbies || [];
+    renderLobbies();
+  } catch (error) {
+    els.cashierMessage.textContent = error.message;
+  }
 }
 
-function joinLobby(buyIn, size) {
+async function joinLobby(buyIn, size) {
   if (!currentUser) {
     showAuth("Log in or create an account before joining a lobby.");
     return;
@@ -543,18 +496,26 @@ function joinLobby(buyIn, size) {
     return;
   }
 
-  state.balance -= buyIn;
-  state.activeBuyIn = buyIn;
-  state.lobby = buildLobby(buyIn, size);
-  state.results = [];
-  state.resultsSettled = false;
-  state.roster = [];
-  els.cashierMessage.textContent = `${money(buyIn)} ${size}-player lobby joined. Your seat is locked.`;
-  updateBalance();
-  syncUserBalance();
-  nextRound();
-  renderAll();
-  switchTab("draft");
+  try {
+    const payload = await apiRequest("/api/lobbies/join", {
+      method: "POST",
+      body: JSON.stringify({ buyIn, size })
+    });
+    currentUser = payload.user;
+    state.balance = currentUser.balance;
+    state.activeBuyIn = buyIn;
+    state.lobby = payload.lobby;
+    state.results = [];
+    state.resultsSettled = false;
+    state.roster = [];
+    els.cashierMessage.textContent = `${money(buyIn)} ${size}-player lobby joined. Your seat is locked.`;
+    await loadLobbySummaries();
+    nextRound();
+    renderAll();
+    switchTab("draft");
+  } catch (error) {
+    els.cashierMessage.textContent = error.message;
+  }
 }
 
 function nextSlot() {
@@ -728,7 +689,7 @@ function payoutForRank(rank, buyIn, size) {
   return payouts[rank - 1] || 0;
 }
 
-function settleResults() {
+async function settleResults() {
   if (!state.lobby || state.roster.length !== rosterSlots.length || state.resultsSettled) return;
 
   state.results = state.lobby.entries
@@ -747,8 +708,7 @@ function settleResults() {
 
   const userResult = state.results.find((entry) => entry.isCurrentUser);
   if (userResult?.payout) {
-    state.balance += userResult.payout;
-    syncUserBalance();
+    await addFunds(userResult.payout);
   }
 
   state.resultsSettled = true;
@@ -851,18 +811,9 @@ function scorePitcher(formData) {
   );
 }
 
-function authenticate(identifier, password) {
-  const normalized = identifier.trim().toLowerCase();
-  return users.find((user) => (
-    (user.email.toLowerCase() === normalized || user.username.toLowerCase() === normalized) &&
-    user.password === password
-  )) || null;
-}
-
 function startSession(user) {
   currentUser = user;
   state.balance = currentUser.balance;
-  writeStorage(storageKeys.session, currentUser.email);
   els.loginForm.reset();
   els.signupForm.reset();
   els.authMessage.textContent = "";
@@ -870,49 +821,54 @@ function startSession(user) {
   switchTab("lobbies");
 }
 
-function handleLogin(event) {
+async function handleLogin(event) {
   event.preventDefault();
   const formData = new FormData(els.loginForm);
-  const user = authenticate(String(formData.get("identifier")), String(formData.get("password")));
-
-  if (!user) {
-    els.authMessage.textContent = "No account matched those credentials.";
-    return;
+  try {
+    const payload = await apiRequest("/api/login", {
+      method: "POST",
+      body: JSON.stringify({
+        identifier: String(formData.get("identifier")),
+        password: String(formData.get("password"))
+      })
+    });
+    startSession(payload.user);
+    await loadLobbySummaries();
+  } catch (error) {
+    els.authMessage.textContent = error.message;
   }
-
-  startSession(user);
 }
 
-function handleSignup(event) {
+async function handleSignup(event) {
   event.preventDefault();
   const formData = new FormData(els.signupForm);
   const username = String(formData.get("username")).trim();
   const email = String(formData.get("email")).trim().toLowerCase();
   const password = String(formData.get("password"));
 
-  if (users.some((user) => user.username.toLowerCase() === username.toLowerCase())) {
-    els.authMessage.textContent = "That username is taken. Try another one.";
+  if (!username || !email || !password) {
+    els.authMessage.textContent = "Username, email, and password are required.";
     return;
   }
 
-  if (users.some((user) => user.email === email)) {
-    els.authMessage.textContent = "That email already has an account. Log in instead.";
-    return;
+  try {
+    const payload = await apiRequest("/api/signup", {
+      method: "POST",
+      body: JSON.stringify({ username, email, password })
+    });
+    startSession(payload.user);
+    await loadLobbySummaries();
+  } catch (error) {
+    els.authMessage.textContent = error.message;
   }
-
-  const user = {
-    username,
-    email,
-    password,
-    balance: 42.5
-  };
-
-  users.push(user);
-  saveUsers();
-  startSession(user);
 }
 
-function signOut() {
+async function signOut() {
+  try {
+    await apiRequest("/api/logout", { method: "POST", body: JSON.stringify({}) });
+  } catch {
+    // The local UI should still clear if the server session is already gone.
+  }
   currentUser = null;
   state.balance = 0;
   state.activeBuyIn = 0;
@@ -922,7 +878,6 @@ function signOut() {
   state.roster = [];
   state.currentSlot = null;
   state.choices = [];
-  removeStorage(storageKeys.session);
   renderAll();
 }
 
@@ -944,24 +899,27 @@ document.querySelectorAll(".tab").forEach((tab) => {
 });
 
 document.querySelectorAll("[data-deposit]").forEach((button) => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
     if (!currentUser) {
       showAuth("Log in before adding funds.");
       return;
     }
 
     const amount = Number(button.dataset.deposit);
-    state.balance += amount;
-    els.cashierMessage.textContent = `${money(amount)} added to your prototype balance.`;
-    updateBalance();
-    syncUserBalance();
+    try {
+      await addFunds(amount);
+      els.cashierMessage.textContent = `${money(amount)} added to your account balance.`;
+    } catch (error) {
+      els.cashierMessage.textContent = error.message;
+    }
   });
 });
 
 els.lobbySizeButtons.forEach((button) => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
     state.selectedLobbySize = Number(button.dataset.lobbySize);
     renderLobbies();
+    await loadLobbySummaries();
   });
 });
 
@@ -997,7 +955,22 @@ document.querySelector("#resetDraft").addEventListener("click", () => {
   switchTab("draft");
 });
 
-renderAll();
-if (currentUser) switchTab("lobbies");
+async function init() {
+  try {
+    const payload = await apiRequest("/api/session");
+    if (payload.user) {
+      currentUser = payload.user;
+      state.balance = currentUser.balance;
+      switchTab("lobbies");
+    }
+  } catch {
+    // Running from file:// or without the server still shows the account screen.
+  }
+
+  renderAll();
+  await loadLobbySummaries();
+}
+
+init();
 
 
