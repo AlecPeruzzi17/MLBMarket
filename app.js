@@ -339,18 +339,25 @@ function removeStorage(key) {
 }
 
 async function apiRequest(path, options = {}) {
-  const response = await fetch(path, {
-    credentials: "same-origin",
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    },
-    ...options
-  });
-  const payload = await response.json().catch(() => ({}));
+  let response;
+  try {
+    response = await fetch(path, {
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      },
+      ...options
+    });
+  } catch {
+    throw new Error("The backend server is not reachable. Run python server.py and open http://127.0.0.1:8000.");
+  }
+
+  const isJson = response.headers.get("Content-Type")?.includes("application/json");
+  const payload = isJson ? await response.json().catch(() => ({})) : {};
 
   if (!response.ok) {
-    throw new Error(payload.error || "Request failed.");
+    throw new Error(payload.error || "The backend server is not available here. Run python server.py and open http://127.0.0.1:8000.");
   }
 
   return payload;
