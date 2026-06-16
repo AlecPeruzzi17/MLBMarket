@@ -508,6 +508,37 @@ h3 {
   animation-delay: var(--card-delay, 0ms);
 }
 
+.player-card-top {
+  position: relative;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.player-card-copy {
+  min-width: 0;
+}
+
+.player-photo {
+  width: 72px;
+  height: 72px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  object-fit: cover;
+  object-position: top center;
+}
+
+.player-photo[hidden] {
+  display: none;
+}
+
+.player-photo[hidden] + .player-card-copy {
+  grid-column: 1 / -1;
+}
+
 .player-card::before {
   content: "";
   position: absolute;
@@ -558,8 +589,8 @@ h3 {
 
 .player-name {
   position: relative;
-  font-size: clamp(1.25rem, 2vw, 1.75rem);
-  line-height: 1;
+  font-size: 1.08rem;
+  line-height: 1.08;
   font-weight: 950;
   overflow-wrap: anywhere;
 }

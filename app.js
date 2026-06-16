@@ -294,6 +294,26 @@ function escapeHtml(value) {
   ));
 }
 
+function baseballReferenceId(name) {
+  const cleaned = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\b(jr|sr|ii|iii|iv)\b/gi, "")
+    .replace(/[^a-z\s-]/gi, " ")
+    .trim()
+    .toLowerCase()
+    .split(/\s+/);
+  const first = cleaned[0] || "";
+  const last = cleaned[cleaned.length - 1] || first;
+
+  return `${last.replace(/[^a-z]/g, "").slice(0, 5)}${first.replace(/[^a-z]/g, "").slice(0, 2)}01`;
+}
+
+function baseballReferencePhotoUrl(name) {
+  const id = baseballReferenceId(name);
+  return `https://www.baseball-reference.com/req/202408220/images/headshots/${id.charAt(0)}/${id}.jpg`;
+}
+
 function readStorage(key) {
   try {
     return localStorage.getItem(key);
@@ -611,14 +631,20 @@ function renderDraft() {
     card.style.setProperty("--card-delay", `${index * 85}ms`);
     const stats = draftCardStats(player);
     card.innerHTML = `
-      <div>
-        <div class="player-name">${player.name}</div>
-        <div class="player-team">${player.team} / ${player.positions.join(", ")}</div>
+      <div class="player-card-top">
+        <img class="player-photo" src="${baseballReferencePhotoUrl(player.name)}" alt="${escapeHtml(player.name)} headshot" loading="lazy">
+        <div class="player-card-copy">
+          <div class="player-name">${escapeHtml(player.name)}</div>
+          <div class="player-team">${escapeHtml(player.team)} / ${escapeHtml(player.positions.join(", "))}</div>
+        </div>
       </div>
       <div class="stat-strip">
-        ${stats.map(([label, value]) => `<div><span>${label}</span><strong>${value}</strong></div>`).join("")}
+        ${stats.map(([label, value]) => `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("")}
       </div>
     `;
+    card.querySelector(".player-photo").addEventListener("error", (event) => {
+      event.currentTarget.hidden = true;
+    });
     card.addEventListener("click", () => choosePlayer(player.name));
     els.choiceGrid.appendChild(card);
   });
